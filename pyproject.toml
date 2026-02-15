@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nanoclaw"
+version = "0.1.0"
+description = "Mid-weight Python AI Agent 鈥?rich ecosystem support, runs on $50 SBCs like Raspberry Pi"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+keywords = ["ai-agent", "edge-computing", "raspberry-pi", "iot", "clawland"]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "httpx>=0.28",
+    "pydantic>=2.10",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "mypy"]
+
+[project.scripts]
+nanoclaw = "nanoclaw.cli:main"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
