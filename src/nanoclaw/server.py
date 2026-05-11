@@ -40,7 +40,7 @@ async def ingest_telemetry(payload: dict[str, Any]) -> dict[str, Any]:
             temperature_c=payload.get("temperature_c"),
             humidity_pct=payload.get("humidity_pct"),
             metrics=payload.get("metrics", {}),
-            timestamp=payload.get("timestamp") or None,
+            timestamp=payload.get("timestamp"),
         )
     except KeyError as exc:
         raise HTTPException(status_code=400, detail="node_id is required") from exc
@@ -53,7 +53,11 @@ async def ingest_telemetry(payload: dict[str, Any]) -> dict[str, Any]:
             metrics=reading.metrics,
         )
 
-    node = aggregator.ingest(reading)
+    try:
+        node = aggregator.ingest(reading)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     decisions = decision_engine.evaluate(reading)
     decision_log.extend(decisions)
 

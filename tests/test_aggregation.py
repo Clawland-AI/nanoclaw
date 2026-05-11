@@ -40,6 +40,22 @@ class SensorAggregationTests(unittest.TestCase):
         self.assertEqual([node.node_id for node in stale], ["rack-a1"])
         self.assertEqual(aggregator.get_node("rack-a1").status, "stale")
 
+    def test_ingest_rejects_empty_node_id(self):
+        aggregator = SensorAggregator()
+
+        with self.assertRaises(ValueError):
+            aggregator.ingest(SensorReading(node_id="", temperature_c=25.0, humidity_pct=45.0))
+
+    def test_zero_timestamp_is_preserved(self):
+        aggregator = SensorAggregator()
+
+        node = aggregator.ingest(
+            SensorReading(node_id="rack-a1", temperature_c=25.0, humidity_pct=45.0, timestamp=0.0)
+        )
+
+        self.assertEqual(node.updated_at, 0.0)
+        self.assertEqual(node.latest.timestamp, 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()
