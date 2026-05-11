@@ -34,9 +34,59 @@ NanoClaw bridges the gap between the ultra-lightweight PicClaw and the full-feat
 - **Data Collector** — Aggregate sensor data from multiple MicroClaw nodes
 - **Lab Monitor** — Temperature, humidity, air quality with ML anomaly detection
 
+## Raspberry Pi Gateway Quick Start
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -e ".[dev]"
+nanoclaw --host 0.0.0.0 --port 8000
+```
+
+Docker/ARM64 deployments can use the included multi-arch Python base image:
+
+```bash
+docker build -t nanoclaw:local .
+docker run --rm -p 8000:8000 nanoclaw:local
+```
+
+## Sensor Aggregation API
+
+NanoClaw accepts reports from PicClaw or MicroClaw nodes and keeps a bounded
+in-memory history for each node.
+
+```bash
+curl -X POST http://localhost:8000/api/v1/telemetry \
+  -H 'Content-Type: application/json' \
+  -d '{"node_id":"rack-a1","temperature_c":41.0,"humidity_pct":72.0}'
+```
+
+Core endpoints:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/healthz` | Service health, node count, decision count |
+| `POST` | `/api/v1/telemetry` | Ingest one sensor report |
+| `GET` | `/api/v1/nodes` | List current node states |
+| `GET` | `/api/v1/nodes/{node_id}` | Inspect one node and recent readings |
+| `GET` | `/api/v1/decisions` | List local threshold decisions |
+
+## Local Decision Engine
+
+The first offline decision engine flags temperature and humidity threshold
+crossings without needing MoltClaw/cloud access:
+
+- `temperature_warning`
+- `temperature_critical`
+- `humidity_warning`
+
+Each decision includes the node id, severity, threshold, observed value, and a
+suggested local action such as publishing an alert or dispatching cooling.
+
 ## Status
 
-🚧 **Pre-Alpha** — Architecture design phase. Looking for contributors!
+🚧 **Pre-Alpha** — Sensor aggregation, local threshold decisions, FastAPI
+endpoints, and ARM64-friendly Docker packaging are now scaffolded.
 
 ## Contributing
 
