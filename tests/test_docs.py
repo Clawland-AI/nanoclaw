@@ -4,6 +4,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 README = (ROOT / "README.md").read_text(encoding="utf-8")
 DOCKERFILE = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+SERVER = (ROOT / "src" / "nanoclaw" / "server.py").read_text(encoding="utf-8")
 
 
 class NanoClawDocsTests(unittest.TestCase):
@@ -18,6 +19,10 @@ class NanoClawDocsTests(unittest.TestCase):
         self.assertIn("COPY src/ src/", DOCKERFILE)
         self.assertIn("RUN pip install --no-cache-dir .", DOCKERFILE)
         self.assertIn("uvicorn", DOCKERFILE)
+
+    def test_decision_log_is_bounded(self):
+        self.assertIn("deque(maxlen=1000)", SERVER)
+        self.assertIn("decision_log", SERVER)
 
 
 if __name__ == "__main__":

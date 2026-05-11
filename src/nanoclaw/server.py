@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -16,7 +17,7 @@ app = FastAPI(
 
 aggregator = SensorAggregator()
 decision_engine = DecisionEngine()
-decision_log: list[Decision] = []
+decision_log: deque[Decision] = deque(maxlen=1000)
 
 
 @app.get("/healthz")
